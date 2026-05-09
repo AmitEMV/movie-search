@@ -52,3 +52,23 @@ extract movie title → fetch movie embedding → nearest-neighbor vector search
 ## App Screenshot
 
 ![App Screenshot](./screenshots/screenshot.png)
+
+## Database
+
+DDL generated from the existing table in Postgres (lost the initial create table)
+
+```
+CREATE TABLE public.items (
+	id serial4 NOT NULL,
+	title text NULL,
+	description text NULL,
+	genre text NULL,
+	release_date date NULL,
+	"year" int4 NULL,
+	vote_average float8 NULL,
+	keywords text NULL,
+	embedding public.vector NULL,
+	CONSTRAINT items_pkey PRIMARY KEY (id)
+);
+CREATE INDEX items_embedding_idx ON public.items USING ivfflat (embedding) WITH (lists='100');
+```
