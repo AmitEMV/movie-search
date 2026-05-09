@@ -8,9 +8,9 @@ interface SearchRequest {
 
 export async function POST(request: Request) {
   const { searchTerm } = await request.json() as SearchRequest;
-
+  
   if (!searchTerm || searchTerm.trim() === "") {
-    return NextResponse.json({ error: "Search term is required" }, { status: 400 });
+    return NextResponse.json({ results: [] });
   }
 
   if (typeof searchTerm !== "string") {

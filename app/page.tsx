@@ -1,26 +1,55 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
+import MovieCard from "./components/MovieCard";
+
+interface Movie {
+  id: number;
+  title: string;
+  description: string;
+  genre: string;
+  year: number;
+  vote_average: number;
+}
 
 export default function Home() {
   const [searchText, setSearchText] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
+  const [searchResults, setSearchResults] = useState<Movie[]>([]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await fetch("/api/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        searchTerm: searchText
-      }),
-    });
+    
+    try {
+      const response = await fetch("/api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          searchTerm: searchText
+        }),
+      });
 
-    const data = await response.json();
-    console.log("Search results:", data);
-    setHasSearched(true);
+      const data = await response.json();
+
+      if(data.error) {
+        setHasSearched(false);
+        setSearchResults([]);
+        toast("An error occurred while trying to search", { duration: 2000, closeButton: true });
+        return;
+      }
+
+      console.log("Search results:", data);
+      setSearchResults(data.results?.rows || []);
+      setHasSearched(true);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+      setHasSearched(false);
+      setSearchResults([]);
+      toast("An error occurred while trying to search", { duration: 2000, closeButton: true });
+    }
   };
 
   return (
@@ -80,67 +109,22 @@ export default function Home() {
                 <h2>Results</h2>
 
                 <p>
-                  {/* result count */}
+                  {searchResults.length} {searchResults.length === 1 ? "result" : "results"}
                 </p>
               </div>
 
               <div className="resultsGrid">
 
-                {/* map results here */}
-
-                <article className="movieCard">
-
-                  <div className="movieContent">
-
-                    <div className="movieTop">
-
-                      <div>
-                        <h3>
-                          {/* movie title */}
-                        </h3>
-
-                        <div className="movieMeta">
-                          <span>
-                            {/* release year */}
-                          </span>
-
-                          <span>•</span>
-
-                          <span>
-                            {/* rating */}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="ratingBox">
-                        <span className="rating">
-                          {/* vote average */}
-                        </span>
-
-                        <span className="ratingLabel">
-                          Rating
-                        </span>
-                      </div>
-
-                    </div>
-
-                    <p className="overview">
-                      {/* movie overview */}
-                    </p>
-
-                    <div className="genreList">
-
-                      {/* map genres here */}
-
-                      <span>
-                        {/* genre */}
-                      </span>
-
-                    </div>
-
-                  </div>
-
-                </article>
+                {searchResults.map((movie) => (
+                  <MovieCard 
+                    key={movie.id}
+                    title={movie.title}
+                    genre={movie.genre}
+                    vote_average={movie.vote_average}
+                    description={movie.description}
+                    year={movie.year}
+                  />
+                ))}
 
               </div>
             </>
