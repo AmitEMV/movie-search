@@ -10,21 +10,41 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## About the App
 
-## Learn More
+Simple movie search app using the TMDB data, built with PostgreSQL + pgvector + Ollama, with search from a simple Next.js app.
 
-To learn more about Next.js, take a look at the following resources:
+Movie metadata is imported from TMDB dataset and the aim is to try out natural-language search using vector embeddings instead of traditional keyword-only matches.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+TMDB dataset CSV → raw_movies → cleaned items table → embeddings. The cleaned table contains the embeddings along with
+other basic movie fields.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Embeddings are generated locally using the model `nomic-embed-text`. The embedding input format is `Title + Genres + Keywords + Overview`
 
-## Deploy on Vercel
+## Search Behaviour 
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Semantic Search
+- User input  is converted into an embedding and it is matched against movie embeddings using pgvector similarity search.
+- What's seen is that it works fine for any non-recommendation style search terms:
+  - themes
+  - genres
+  - descriptive searches
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Example:
+"space movies about saving earth"
+
+Flow:
+query text → embedding → vector similarity search
+
+
+2. Recommendation-Style Search
+- Detect recommendation-style queries like:
+  "movies like Interstellar"
+- For this, find the target movie from DB and use it's existing embedding directly for nearest-neighbor search
+- Best for:
+  - similar movies
+  - recommendation queries
+
+Flow:
+extract movie title → fetch movie embedding → nearest-neighbor vector search
