@@ -48,3 +48,7 @@ query text → embedding → vector similarity search
 
 Flow:
 extract movie title → fetch movie embedding → nearest-neighbor vector search
+
+## App Screenshot
+
+![App Screenshot](./screenshots/screenshot.png)
