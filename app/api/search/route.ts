@@ -1,6 +1,9 @@
 import { generateEmbedding } from "@/app/lib/embedding";
-import { query } from "../../lib/db";
 import { NextResponse } from "next/server";
+import { getMovieTitleFromRecommendationQuery, isRecommendationQuery } from "@/app/lib/recommendationQuery";
+import { getMovieDetailsFromTitle } from "@/app/lib/getMovieDetails";
+import { getMatchingMovies } from "@/app/lib/getMatchingMovies";
+import { getRecommendedMovies } from "@/app/lib/getRecommendationMovies";
 
 interface SearchRequest {
   searchTerm: string;
@@ -17,22 +20,42 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Search term must be a string" }, { status: 400 });
   }
 
-  const embeddingResponse = await generateEmbedding(searchTerm);
+  const isRecommendation = isRecommendationQuery(searchTerm);
 
-  if (embeddingResponse.error) {
-    return NextResponse.json({ error: embeddingResponse.error }, { status: 500 });
-  }
+  if(isRecommendation) {
+    // For recommendation queries, we use a different SQL query to match the movies similarity based on the embedding
+    const movieTitle = getMovieTitleFromRecommendationQuery(searchTerm);
+    if (!movieTitle) {
+      return NextResponse.json({ error: "Invalid recommendation query" }, { status: 400 });
+    }
 
-  const vector = `[${embeddingResponse.embedding.join(",")}]`;
+    const movieDetails = await getMovieDetailsFromTitle(movieTitle);
+    if (!movieDetails) {
+      return NextResponse.json({ error: "Movie not found for recommendation" }, { status: 404 });
+    }
+    try {
+      const results = await getRecommendedMovies(movieDetails.embedding, movieDetails.id);
+      return NextResponse.json({ results });
+    } catch (error) {
+      console.error("Error searching movies:", error);
+      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
+  } else {
 
-  try {
-    const results = await query(
-      "SELECT id, title, description, genre, year, vote_average, embedding <-> $1 AS similarity FROM items ORDER BY embedding <-> $1 LIMIT 10;",
-      [vector]
-    );
-    return NextResponse.json({ results });
-  } catch (error) {
-    console.error("Error searching movies:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const embeddingResponse = await generateEmbedding(searchTerm);
+
+    if (embeddingResponse.error) {
+      return NextResponse.json({ error: embeddingResponse.error }, { status: 500 });
+    }
+
+    const vector = `[${embeddingResponse.embedding.join(",")}]`;
+
+    try {
+      const results = await getMatchingMovies(vector);
+      return NextResponse.json({ results });
+    } catch (error) {
+      console.error("Error searching movies:", error);
+      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
   }
 }
