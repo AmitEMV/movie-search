@@ -84,4 +84,5 @@ CREATE INDEX items_embedding_idx ON public.items USING ivfflat (embedding) WITH 
 * Streaming UI responses
 * Query caching 
 * Typo tolerance and fuzzy title matching using PostgreSQL pg_trgm similarity search
+* Tests 
 * ....
