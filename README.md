@@ -52,6 +52,11 @@ Generally, 3 separate search paths in this (not perfect but fine for this small 
 * "space movies about saving earth" -> direct semantic search
 * "action movies after 2010 rated above 7" -> LLM-assisted query planning + hybrid search (semantic embeddings + SQL filters)
 
+More notes/observation: 
+* Initially only embeddings were added but it failed for numeric constraints (movies after 2010/ratings above 7 etc.)
+* Adding planner broke some simpler cases so we use it only when needed/makes sense
+* Ranking logic conflicted with “bad movie” intent like "movies so bad they're good/terrible horror movies" so needed some extra handling
+
 
 ## App Screenshot
 
