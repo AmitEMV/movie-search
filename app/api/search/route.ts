@@ -4,9 +4,16 @@ import { getMovieTitleFromRecommendationQuery, isRecommendationQuery } from "@/a
 import { getMovieDetailsFromTitle } from "@/app/lib/getMovieDetails";
 import { getMatchingMovies } from "@/app/lib/getMatchingMovies";
 import { getRecommendedMovies } from "@/app/lib/getRecommendationMovies";
+import { planQuery } from "@/app/lib/planner";
 
 interface SearchRequest {
   searchTerm: string;
+}
+
+// Simple logic to determine if the query should go through the planner path
+function shouldUsePlanner(searchTerm: string): boolean {
+  return /(after|before|above|below|top rated|rating|released|year)/i
+    .test(searchTerm);
 }
 
 export async function POST(request: Request) {
@@ -40,22 +47,45 @@ export async function POST(request: Request) {
       console.error("Error searching movies:", error);
       return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
-  } else {
+  } 
+  
+  const parsedQuery = await planQuery(searchTerm);
+  const embeddingResponse = await generateEmbedding(parsedQuery.semanticQuery);
 
-    const embeddingResponse = await generateEmbedding(searchTerm);
+  if (embeddingResponse.error) {
+    return NextResponse.json(
+      { error: embeddingResponse.error },
+      { status: 500 }
+    );
+  }
 
-    if (embeddingResponse.error) {
-      return NextResponse.json({ error: embeddingResponse.error }, { status: 500 });
-    }
+  const vector = `[${embeddingResponse.embedding.join(",")}]`;
 
-    const vector = `[${embeddingResponse.embedding.join(",")}]`;
-
+  if(shouldUsePlanner(searchTerm)) {
+    // Queries that need planner so that it will return the filters and semantic query term
     try {
-      const results = await getMatchingMovies(vector);
-      return NextResponse.json({ results });
+
+      const results = await getMatchingMovies({vector,
+          filters: parsedQuery.filters,
+          semanticQuery:
+            parsedQuery.semanticQuery
+        });
+
+      return NextResponse.json({ parsedQuery,results});
+
     } catch (error) {
       console.error("Error searching movies:", error);
       return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
   }
+
+  // Direct semantic search without filters, for simple queries that don't need planner
+  try {
+    const results = await getMatchingMovies({ vector, filters: {}, semanticQuery: searchTerm });
+    return NextResponse.json({ results });
+  } catch (error) {
+    console.error("Error searching movies:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+  
 }

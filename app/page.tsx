@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import MovieCard from "./components/MovieCard";
+import { PuffLoader } from "react-spinners";
 
 interface Movie {
   id: number;
@@ -17,10 +18,12 @@ export default function Home() {
   const [searchText, setSearchText] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
   const [searchResults, setSearchResults] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     
+    setIsLoading(true);
     try {
       const response = await fetch("/api/search", {
         method: "POST",
@@ -41,7 +44,6 @@ export default function Home() {
         return;
       }
 
-      console.log("Search results:", data);
       setSearchResults(data.results?.rows || []);
       setHasSearched(true);
     } catch (error) {
@@ -49,6 +51,8 @@ export default function Home() {
       setHasSearched(false);
       setSearchResults([]);
       toast("An error occurred while trying to search", { duration: 2000, closeButton: true });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -99,7 +103,12 @@ export default function Home() {
 
         <section className="resultsSection">
 
-          {!hasSearched ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-10">
+              <PuffLoader color="#a1a1aa" size={75} />
+              <p className="mt-4 text-zinc-500">Searching</p>
+            </div>
+          ) : !hasSearched ? (
             <div className="emptyState">
               <p>Search for something to see results here</p>
             </div>
