@@ -4,8 +4,9 @@ import { useState } from "react";
 
 export default function Home() {
   const [searchText, setSearchText] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const response = await fetch("/api/search", {
       method: "POST",
@@ -19,6 +20,7 @@ export default function Home() {
 
     const data = await response.json();
     console.log("Search results:", data);
+    setHasSearched(true);
   };
 
   return (
@@ -68,73 +70,81 @@ export default function Home() {
 
         <section className="resultsSection">
 
-          <div className="resultsHeader">
-            <h2>Results</h2>
+          {!hasSearched ? (
+            <div className="emptyState">
+              <p>Search for something to see results here</p>
+            </div>
+          ) : (
+            <>
+              <div className="resultsHeader">
+                <h2>Results</h2>
 
-            <p>
-              {/* result count */}
-            </p>
-          </div>
-
-          <div className="resultsGrid">
-
-            {/* map results here */}
-
-            <article className="movieCard">
-
-              <div className="movieContent">
-
-                <div className="movieTop">
-
-                  <div>
-                    <h3>
-                      {/* movie title */}
-                    </h3>
-
-                    <div className="movieMeta">
-                      <span>
-                        {/* release year */}
-                      </span>
-
-                      <span>•</span>
-
-                      <span>
-                        {/* rating */}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="ratingBox">
-                    <span className="rating">
-                      {/* vote average */}
-                    </span>
-
-                    <span className="ratingLabel">
-                      Rating
-                    </span>
-                  </div>
-
-                </div>
-
-                <p className="overview">
-                  {/* movie overview */}
+                <p>
+                  {/* result count */}
                 </p>
-
-                <div className="genreList">
-
-                  {/* map genres here */}
-
-                  <span>
-                    {/* genre */}
-                  </span>
-
-                </div>
-
               </div>
 
-            </article>
+              <div className="resultsGrid">
 
-          </div>
+                {/* map results here */}
+
+                <article className="movieCard">
+
+                  <div className="movieContent">
+
+                    <div className="movieTop">
+
+                      <div>
+                        <h3>
+                          {/* movie title */}
+                        </h3>
+
+                        <div className="movieMeta">
+                          <span>
+                            {/* release year */}
+                          </span>
+
+                          <span>•</span>
+
+                          <span>
+                            {/* rating */}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="ratingBox">
+                        <span className="rating">
+                          {/* vote average */}
+                        </span>
+
+                        <span className="ratingLabel">
+                          Rating
+                        </span>
+                      </div>
+
+                    </div>
+
+                    <p className="overview">
+                      {/* movie overview */}
+                    </p>
+
+                    <div className="genreList">
+
+                      {/* map genres here */}
+
+                      <span>
+                        {/* genre */}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </article>
+
+              </div>
+            </>
+          )}
 
         </section>
 

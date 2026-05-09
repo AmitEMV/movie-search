@@ -38,7 +38,7 @@ body {
 }
 
 .hero {
-  padding: 45px 15%;
+  padding: 40px 15%;
   background: linear-gradient(to bottom,
       #eef2ff,
       #f5f7fb);
@@ -47,54 +47,54 @@ body {
 .heroHeader {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 31px;
+  gap: 14px;
+  margin-bottom: 28px;
 }
 
 .logoBox {
-  width: 45px;
-  height: 45px;
-  border-radius: 13px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   background: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .hero h1 {
-  font-size: 41px;
+  font-size: 37px;
   line-height: 1.1;
-  margin-bottom: 7px;
+  margin-bottom: 6px;
   font-weight: 700;
   letter-spacing: -2px;
 }
 
 .hero p {
-  font-size: 15px;
+  font-size: 14px;
   color: #6b7280;
 }
 
 .searchForm {
   display: flex;
-  gap: 13px;
+  gap: 12px;
 }
 
 .searchInputWrapper {
   flex: 1;
-  height: 50px;
+  height: 45px;
   background: white;
-  border-radius: 13px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  padding: 0 18px;
+  padding: 0 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .searchIcon {
-  font-size: 15px;
-  margin-right: 12px;
+  font-size: 14px;
+  margin-right: 11px;
 }
 
 .searchInputWrapper input {
@@ -102,7 +102,7 @@ body {
   border: none;
   outline: none;
   background: transparent;
-  font-size: 18px;
+  font-size: 16px;
   color: #111827;
 }
 
@@ -111,14 +111,14 @@ body {
 }
 
 .searchForm button {
-  width: 126px;
+  width: 113px;
   border: none;
-  border-radius: 13px;
+  border-radius: 12px;
   background: linear-gradient(135deg,
       #6366f1,
       #4338ca);
   color: white;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(99, 102, 241, 0.35);
@@ -225,4 +225,14 @@ body {
   border-radius: 999px;
   font-size: 14px;
   font-weight: 500;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 80px 20px;
+  color: #6b7280;
+  font-size: 18px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
